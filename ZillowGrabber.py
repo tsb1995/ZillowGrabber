@@ -23,7 +23,7 @@ api = zillow.ValuationApi()
 # Load in our data and cut out irrelevant information
 addresses = pd.read_excel('HousingData.xls')
 address_df = addresses.loc[addresses['County'].isin(['Orange', 'Los Angeles', 'San Bernardino', 'Riverside'])]
-address_df = addresses.loc[addresses['Status'].isin(['Postponed', 'Auction'])]
+address_df = address_df.loc[address_df['Status'].isin(['Postponed', 'Auction'])]
 address_df = address_df.drop(['Original Principal Balance'], axis=1).dropna(subset=['Property Address', 'Zip'])
 
 df = address_df.copy()
