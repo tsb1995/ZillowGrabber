@@ -76,64 +76,62 @@ range_ = "Sheet1!A:A"
 d = datetime.datetime.today()
 sheet_name = 'Housing ' + d.strftime('%d-%m-%Y')
 
-def main():
-    creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+creds = None
+# The file token.pickle stores the user's access and refresh tokens, and is
+# created automatically when the authorization flow completes for the first
+# time.
+if os.path.exists('token.pickle'):
+    with open('token.pickle', 'rb') as token:
+        creds = pickle.load(token)
 
-    service = build('sheets', 'v4', credentials=creds)
+# If there are no (valid) credentials available, let the user log in.
+if not creds or not creds.valid:
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+    else:
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', SCOPES)
+        creds = flow.run_local_server(port=0)
+    # Save the credentials for the next run
+    with open('token.pickle', 'wb') as token:
+        pickle.dump(creds, token)
 
-    # Call the Sheets API
-    sheet = service.spreadsheets()
+service = build('sheets', 'v4', credentials=creds)
 
-    # Create new Sheet
-    spreadsheet = {
-        'properties': {
-            'title': sheet_name
-        }
+# Call the Sheets API
+sheet = service.spreadsheets()
+
+# Create new Sheet
+spreadsheet = {
+    'properties': {
+        'title': sheet_name
     }
-    spreadsheet = service.spreadsheets().create(body=spreadsheet,
-                                        fields='spreadsheetId').execute()
-    spreadsheet_id = spreadsheet.get('spreadsheetId')
-    print('Spreadsheet ID: {0}'.format(spreadsheet.get('spreadsheetId')))
+}
+spreadsheet = service.spreadsheets().create(body=spreadsheet,
+                                    fields='spreadsheetId').execute()
+spreadsheet_id = spreadsheet.get('spreadsheetId')
+print('Spreadsheet ID: {0}'.format(spreadsheet.get('spreadsheetId')))
 
-    # Fill in header
-    list = [df.columns.tolist()]
+# Fill in header
+list = [df.columns.tolist()]
 
-    resource = {
-      "majorDimension": "ROWS",
-      "values": list
-    }
+resource = {
+  "majorDimension": "ROWS",
+  "values": list
+}
 
-    request = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=range_, body=resource,
-      valueInputOption="USER_ENTERED")
-    response = request.execute()
+request = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=range_, body=resource,
+  valueInputOption="USER_ENTERED")
+response = request.execute()
 
-    # Fill in body
-    list = df.values.tolist()
+# Fill in body
+list = df.values.tolist()
 
-    resource = {
-      "majorDimension": "ROWS",
-      "values": list
-    }
+resource = {
+  "majorDimension": "ROWS",
+  "values": list
+}
 
-    request = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=range_, body=resource,
-      valueInputOption="USER_ENTERED")
-    response = request.execute()
-
-main()
+request = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=range_, body=resource,
+  valueInputOption="USER_ENTERED")
+response = request.execute()
